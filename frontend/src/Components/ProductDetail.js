@@ -51,6 +51,11 @@ const ProductDetail = () => {
 
   return (
     <div className="container mt-4">
+      <div className="d-flex flex-row-reverse">
+        <button className="btn btn-link" onClick={() => navigate("/")}>
+          Back
+        </button>
+      </div>
       {product ? (
         <div className="row">
           <div className="col-md-4">
@@ -77,9 +82,8 @@ const ProductDetail = () => {
                 </button>
                 <button className="btn btn-secondary" disabled>
                   {cart.length > 0
-                    ? cart.map(
-                        (item) => item._id === product._id && item.quantity
-                      )
+                    ? cart.find((item) => item._id === product._id)?.quantity ||
+                      0
                     : 0}
                 </button>
                 <button

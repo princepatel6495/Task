@@ -1,17 +1,26 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
 import moment from "moment";
+
 const Orders = () => {
   const [email, setEmail] = useState("");
-  const [orderList, setOrderList] = useState([]);
-  console.log("orderList: ", orderList);
+  const [orderList, setOrderList] = useState();
+  const [loading, setLoading] = useState(false);
+  const [emailValid, setEmailValid] = useState(false);
 
   const handleEmailChange = (e) => {
-    setEmail(e.target.value);
+    const emailValue = e.target.value;
+    setEmail(emailValue);
+    setEmailValid(validateEmail(emailValue));
+  };
+
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}orders/get-order-by-email/${email}`
@@ -29,6 +38,8 @@ const Orders = () => {
       }
     } catch (error) {
       console.error("Error submitting order:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,15 +50,21 @@ const Orders = () => {
         <div className="col-md-9 mb-3">
           <label className="form-label">Enter Email ID:</label>
           <input
-            type="text"
-            className="form-control w-50"
+            type="email"
+            className={`form-control w-50 ${
+              email ? (emailValid ? "is-valid" : "is-invalid") : ""
+            }`}
             value={email}
             onChange={handleEmailChange}
           />
+
+          <div className="invalid-feedback">
+            Please enter a valid email address.
+          </div>
           <button
             className="btn btn-primary mt-3"
             onClick={handleSubmit}
-            disabled={!email}
+            disabled={!emailValid}
           >
             Submit
           </button>
@@ -59,29 +76,40 @@ const Orders = () => {
       </div>
 
       <table className="table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Product Name</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orderList &&
-            orderList.map((order) =>
-              order.orders.map((product) => (
-                <tr key={product._id}>
-                  <td>{moment(order.createdAt).format("DD-MM-YYYY")}</td>
-                  <td>{product.name}</td>
-                  <td>{product.quantity}</td>
-                  <td>{product.price}</td>
-                  <td>{product.status}</td>
-                </tr>
-              ))
-            )}
-        </tbody>
+        {loading && <p>Loading...</p>}
+        {!loading && orderList && orderList?.length === 0 && (
+          <tbody>
+            <tr>
+              <td colSpan="5">No records found for the given email.</td>
+            </tr>
+          </tbody>
+        )}
+        {!loading && orderList && orderList.length > 0 && (
+          <>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orderList.map((order) =>
+                order.orders.map((product) => (
+                  <tr key={product._id}>
+                    <td>{moment(order.createdAt).format("DD-MM-YYYY")}</td>
+                    <td>{product.name}</td>
+                    <td>{product.quantity}</td>
+                    <td>{product.price}</td>
+                    <td>{product.status}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </>
+        )}
       </table>
     </div>
   );

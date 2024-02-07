@@ -21,7 +21,7 @@ const NavigationPanel = () => {
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
               <Link to="/Cart" className="nav-link">
-                {`Cart ${cart.length > 0 ? cart.length : ""}`}
+                {`Cart ${cart?.length > 0 ? cart?.length : ""}`}
               </Link>
             </li>
             <li className="nav-item">

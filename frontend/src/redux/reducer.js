@@ -5,14 +5,14 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case "ADD_TO_CART":
-      const existingItemIndex = state.cart.findIndex(
+      const existingItemIndex = state?.cart?.findIndex(
         (item) => item._id === action.payload._id
       );
 
       if (existingItemIndex !== -1) {
         return {
           ...state,
-          cart: state.cart.map((item, index) =>
+          cart: state?.cart.map((item, index) =>
             index === existingItemIndex
               ? { ...item, quantity: item.quantity + 1 }
               : item

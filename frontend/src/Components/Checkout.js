@@ -23,18 +23,42 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
+  const validateEmail = (email) => {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  };
+
+  const validatePhoneNumber = (phone) => {
+    const re = /^\d{10}$/;
+    return re.test(phone);
+  };
+
+  const validateZipcode = (zipcode) => {
+    const re = /^\d{6}$/;
+    return re.test(zipcode);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    handleBlur(e);
   };
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
+    const fieldErrors = { ...errors };
     if (!value.trim()) {
-      setErrors({ ...errors, [name]: "This field is required." });
+      fieldErrors[name] = "This field is required.";
+    } else if (name === "email" && !validateEmail(value)) {
+      fieldErrors[name] = "Invalid email address.";
+    } else if (name === "phone" && !validatePhoneNumber(value)) {
+      fieldErrors[name] = "Invalid phone number.";
+    } else if (name === "zipcode" && !validateZipcode(value)) {
+      fieldErrors[name] = "Zipcode must be 6 digits.";
     } else {
-      setErrors({ ...errors, [name]: undefined });
+      delete fieldErrors[name];
     }
+    setErrors({ ...fieldErrors });
   };
 
   const handleSubmit = async (e) => {
